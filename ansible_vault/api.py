@@ -54,10 +54,7 @@ class Vault(object):
 
     def dump_raw(self, text, stream=None):
         """Encrypt raw data and write to stream."""
-        encrypted = self.vault.encrypt(text)
-        if not _PY2:
-            encrypted = encrypted.decode('utf-8')
-
+        encrypted = Vault._decode(self.vault.encrypt(text))
         if stream:
             stream.write(encrypted)
         else:
@@ -74,3 +71,11 @@ class Vault(object):
             default_flow_style=False,
             allow_unicode=True)
         return self.dump_raw(yaml_text, stream=stream)
+
+    @staticmethod
+    def _decode(text):
+        if _PY2 and isinstance(text, str):
+            return text.decode('utf-8')
+        elif not _PY2 and isinstance(text, bytes):
+            return text.decode('utf-8')
+        return text
